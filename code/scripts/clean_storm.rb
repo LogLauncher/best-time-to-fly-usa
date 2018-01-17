@@ -1,92 +1,185 @@
+require "CSV"
+
 # Paths to the files
 storm_file_path = "../../data/raw/stormdata_2008.csv"
 state_file_path = "../../data/raw/states.csv"
 final_path = "../../data/processed/stormdata_2008_cleaned.csv"
+inter_path = "../../data/processed/date_state.csv"
 
-@states = Array.new # Global vaiable with the states
+# The columns to remove from the storms file
+columns_to_remove = [
+    "BEGIN_YEARMONTH",
+    "BEGIN_DAY",
+    "BEGIN_TIME",
+    "END_YEARMONTH",
+    "END_DAY",
+    "END_TIME",
+    "EPISODE_ID",
+    "EVENT_ID",
+    "STATE_FIPS",
+    "YEAR",
+    "MONTH_NAME",
+    "CZ_TYPE",
+    "CZ_FIPS",
+    "CZ_NAME",
+    "WFO",
+    "CZ_TIMEZONE",
+    "INJURIES_DIRECT",
+    "INJURIES_INDIRECT",
+    "DEATHS_DIRECT",
+    "DEATHS_INDIRECT",
+    "DAMAGE_PROPERTY",
+    "DAMAGE_CROPS",
+    "SOURCE",
+    "MAGNITUDE",
+    "MAGNITUDE_TYPE",
+    "FLOOD_CAUSE",
+    "CATEGORY",
+    "TOR_F_SCALE",
+    "TOR_LENGTH",
+    "TOR_WIDTH",
+    "TOR_OTHER_WFO",
+    "TOR_OTHER_CZ_STATE",
+    "TOR_OTHER_CZ_FIPS",
+    "TOR_OTHER_CZ_NAME",
+    "BEGIN_RANGE",
+    "BEGIN_AZIMUTH",
+    "BEGIN_LOCATION",
+    "END_RANGE",
+    "END_AZIMUTH",
+    "END_LOCATION",
+    "BEGIN_LAT",
+    "BEGIN_LON",
+    "END_LAT",
+    "END_LON",
+    "EPISODE_NARRATIVE",
+    "EVENT_NARRATIVE",
+    "LAST_MOD_DATE",
+    "LAST_MOD_TIME",
+    "LAST_CERT_DATE",
+    "LAST_CERT_TIME",
+    "LAST_MOD",
+    "LAST_CERT",
+    "ADDCORR_FLG",
+    "ADDCORR_DATE",
+]
 
-# Function to convert the states csv file to an array
-def states_to_array(input_path)
-    # Open the file
-    data = File.open(input_path)
+# The date columns that need formated
+date_columns_to_clean = [
+    "BEGIN_DATE_TIME",
+    "END_DATE_TIME",
+]
 
-    # Iterate over each line of the file
-    data.each_with_index do |line, index|
+# The rows that need removed
+words_to_remove = [
+    "Drought",
+    "Avalanche",
+    "Astronomical Low Tide",
+    "Coastal Flood",
+    "Landslide",
+    "Rip Current",
+    "Seiche",
+    "Sleet",
+    "Storm Surge/Tide",
+    "Tropical Depression",
+]
 
-        # Skip the first line
-        next if index == 0
+# Import the csv files
+puts "Reading states..."
+states = CSV.read(state_file_path, :headers => true)
+puts "Reading storms..."
+storms = CSV.read(storm_file_path, :headers => true)
 
-        # 1. Remove " and \n 2. Convert the line to an array 3. Add it to the states array
-        @states << line.gsub(/\"|\n/, '').split(",")
+# Function that removes unwanted columns
+def remove_columns(table, columns_to_remove)
+    # Informe the user
+    puts "Removing columns..."
+
+    # Iterate over the columns to remove
+    columns_to_remove.each do |column|
+        # Remove that columns
+        table.delete(column)
     end
-
-    # Close the connection to the file
-    data.close
+    # Return the table
+    table
 end
 
-# Function
-def clean_file(input_path, output_path)
-    # Inform the user
-    puts "This could take some time. Removing unwanted chars. Please wait..."
+# Function that adds the state abbreviation to the file
+def add_state_addr(states, table)
+    # Informe the user
+    puts "Adding column..."
 
-    # Variable for the final csv
-    final = Array.new
+    # Iterate over each row of the storms table
+    table.by_row().each_with_index do |row, index|
+        # Find the row in the states table that corresponds
+        state_row = states.find {|state| state["State"].capitalize == row["STATE"].capitalize}
 
-    # Open the file
-    data = File.open(input_path)
-
-    # Iterate over each line of the file
-    data.each_with_index do |line, index|
-        # Seperate the line on "," into an array
-        columns = line.split(",")
-
-        # Skip if the column n°8 is empty
-        next if columns[8] == nil
-
-        # Add new header if first line
-        if index == 0
-
-            # Add the new header
-            columns.insert(9, "STATE_ABBR")
-
-        # Add normal line if not first line
+        # Check if a state was found
+        if state_row != nil
+            # Add the abbreviation to the storms table
+            row["STATE_ABBR"] = state_row["Abbreviation"]
         else
-
-            # Check if the are columns
-            if columns.class != nil
-
-                # Skip if the event type is a "Drought"
-                next if columns[12].capitalize == "Drought"
-
-                # Tidy up the date columns
-                date = columns[17].to_s.gsub(/(\d{1,2})[\.|\/|\-](\d{1,2})[\.|\/|\-](\d{2,4})(.*)/, '\1.\2.\3') # Tidy
-                columns.delete_at(17)                                                                           # Remove current
-                columns.insert(17, date)                                                                        # Insert new value
-                date = columns[19].to_s.gsub(/(\d{1,2})[\.|\/|\-](\d{1,2})[\.|\/|\-](\d{2,4})(.*)/, '\1.\2.\3') # Tidy
-                columns.delete_at(19)                                                                           # Remove current
-                columns.insert(19, date)                                                                        # Insert new value
-
-                # Add the new state abbreviation column
-                state = columns[8].capitalize                           # Get the state
-                match = @states.find { |s| s[0].capitalize == state }   # Find the abbreviation
-                next if match == nil                                    # Skip if the abbreviation was not found
-                columns.insert(9, match[1])                             # Insert value
-
-            end
-
+            # Remove the row if no state was found
+            row.delete(index)
         end
-
-        # Add the row to the final csv
-        final << columns.join(",")
-
     end
-    # Close the connection to the file
-    data.close
 
-    # Create the final file
-    File.open(output_path, "w") {|f| f.write(final.join())}
+    # Delete the row if there is no state abbreviation
+    table.delete_if do |row|
+        row["STATE_ABBR"] == nil
+    end
+
+    # Return the table
+    table
 end
 
-# Call the functions
-states_to_array(state_file_path)
-clean_file(storm_file_path, final_path)
+# Function that deletes the rows containing specific words in a column
+def delete_rows(table, words)
+    # Informe the user
+    puts "Deleteing rows..."
+    words.each do |word|
+        # Informe the user
+        puts "Deleteing rows with #{word}..."
+
+        # Delete the row if it finds the word
+        table.delete_if do |row|
+            row["EVENT_TYPE"] == word
+        end
+    end
+
+    # Return the table
+    table
+end
+
+# Function to format the dates
+def clean_dates(table, columns)
+    # Informe the user
+    puts "Cleaning dates..."
+
+    # Iterate over the storms table
+    table.each do |row|
+        # Iterate over the date columns
+        columns.each do |column|
+            # Format and replace the date
+            date = row[column].to_s.gsub(/(\d{1,2})[\.|\/|\-](\d{1,2})[\.|\/|\-](\d{2,4})(.*)/, '\2.\1.\3')
+            date = Date.parse(date)
+            row[column] = date.strftime('%d.%m.%Y')
+        end
+    end
+
+    # Return the table
+    table
+end
+
+# Call all the functions
+storms = remove_columns(storms, columns_to_remove)
+storms = delete_rows(storms, words_to_remove)
+storms = add_state_addr(states, storms)
+storms = clean_dates(storms, date_columns_to_clean)
+
+# Informe the user
+puts "Creating the file..."
+# Create the cleand file with the data
+File.open(final_path, 'w') do |f|
+    f.write(storms.to_csv)
+end
