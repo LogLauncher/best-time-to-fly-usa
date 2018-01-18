@@ -33,7 +33,7 @@ Once you have ruby installed open a command prompt, navigate to the `scripts` fo
 - `$ ruby clean_flights.rb`
 - `$ ruby clean_storm.rb`
 
-The `clean_flights.rb` script will generate 3 **csv** files:`flights_2008_cleaned_3000000`, `flights_2008_cleaned_6000000` and `flights_2008_cleaned_final`.<br>
+The `clean_flights.rb` script will generate 3 **csv** files: `flights_2008_cleaned_3000000`, `flights_2008_cleaned_6000000` and `flights_2008_cleaned_final`.<br>
 The `clean_storms.rb` script will generate 1 **csv** file: `stormdata_2008_cleaned`.
 
 While the scripts are executing you can copy the following files from the `raw` folder to the `processed` folder.
