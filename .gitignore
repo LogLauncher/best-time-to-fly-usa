@@ -1,0 +1,16 @@
+
+*.pbix
+
+data/raw/flights_2008\.csv
+
+data/processed/flights_2008_cleaned_3000000\.csv
+
+data/processed/flights_2008_cleaned_6000000\.csv
+
+data/processed/flights_2008_cleaned_final\.csv
+
+code/unused_scripts/business_int_with_data_v1\.sql
+
+code/unused_scripts/business_int_with_data_v2_incomplete\.sql
+
+code/unused_scripts/business_int_with_data_flights_incomplete\.sql

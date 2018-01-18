@@ -54,9 +54,74 @@ Create the database on your server and then proceed to import the different file
 In phpMyAdmin when importing the **flight** csv files I would get a timeout. Luckily phpMyAdmin allows you to resume importing from where you left off.<br>
 When resuming an import remove from the URL the following part `&timeout_passed=1`. This helped me out with it crashing on the resume import.
 
+Once every thing is imported you will need to run the following query in your database
+
+```sql
+INSERT INTO date_state
+(SELECT (@cnt := @cnt + 1) AS id, b.*
+FROM
+(SELECT * FROM
+((SELECT f.departure_date AS `date`, a.state_abbr FROM flights f
+INNER JOIN airports a ON
+a.iata = f.origin
+WHERE (f.arr_delay + f.dep_delay) > 0
+GROUP BY f.departure_date, a.state_abbr)
+UNION
+(SELECT f.departure_date AS `date`, a.state_abbr FROM flights f
+INNER JOIN airports a ON
+a.iata = f.dest
+WHERE (f.arr_delay + f.dep_delay) > 0
+GROUP BY f.departure_date, a.state_abbr)
+UNION
+(SELECT DISTINCT start_date AS `date`, state_abbr
+FROM storms)
+UNION
+(SELECT DISTINCT end_date AS `date`, state_abbr
+FROM storms)) t
+GROUP BY `date`, state_abbr
+ORDER BY `date`, state_abbr) b
+CROSS JOIN (SELECT @cnt := 0) AS d);
+```
+
+```sql
+INSERT INTO flights_only_delay
+SELECT * FROM
+((SELECT ds.id AS `fk_date_state`, f.arr_delay, f.dep_delay, f.origin, f.dest, f.weather_delay
+FROM flights f
+INNER JOIN airports a ON
+a.iata = f.origin
+INNER JOIN date_state ds ON
+ds.`date` = f.departure_date AND ds.state_abbr = a.state_abbr
+WHERE (f.arr_delay + f.dep_delay) > 0)
+UNION
+(SELECT ds.id AS `fk_date_state`, f.arr_delay, f.dep_delay, f.origin, f.dest, f.weather_delay
+FROM flights f
+INNER JOIN airports a ON
+a.iata = f.dest
+INNER JOIN date_state ds ON
+ds.`date` = f.departure_date AND ds.state_abbr = a.state_abbr
+WHERE (f.arr_delay + f.dep_delay) > 0)) a
+```
+
 ### 5\. Importing into PowerBI
 
-When selecting the type of data to import into the software, select **MySQL**. Doing this will allow you to create a query when getting the data.
+When selecting the type of data to import into the software, select **MySQL** and link to your database.<br>
+When selecting the server and database name you'll need to selection **Advanced** to be able to add a SQL query to load data.
+
+MySQL query for the storms table:
+
+```sql
+(SELECT ds.id AS `fk_date_state`, s.type
+FROM storms s
+INNER JOIN date_state ds ON
+ds.`date` = s.start_date AND ds.state_abbr = s.state_abbr)
+UNION ALL
+(SELECT ds.id AS `fk_date_state`, s.type
+FROM storms s
+INNER JOIN date_state ds ON
+ds.`date` = s.end_date AND ds.state_abbr = s.state_abbr
+WHERE s.start_date != s.end_date)
+```
 
 ## Study design
 
