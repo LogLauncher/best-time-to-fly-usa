@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 18, 2018 at 06:20 PM
+-- Generation Time: Jan 17, 2018 at 05:16 PM
 -- Server version: 5.7.19
 -- PHP Version: 5.6.31
 
@@ -38,25 +38,7 @@ CREATE TABLE IF NOT EXISTS `airports` (
   `state_abbr` varchar(5) NOT NULL,
   `country` varchar(100) NOT NULL,
   `lat` decimal(15,10) NOT NULL,
-  `longitude` decimal(15,10) NOT NULL,
-  PRIMARY KEY (`iata`),
-  KEY `iata` (`iata`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `date_state`
---
-
-DROP TABLE IF EXISTS `date_state`;
-CREATE TABLE IF NOT EXISTS `date_state` (
-  `id` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `state_abbr` varchar(5) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `date` (`date`),
-  KEY `state_abbr` (`state_abbr`)
+  `longitude` decimal(15,10) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -72,26 +54,7 @@ CREATE TABLE IF NOT EXISTS `flights` (
   `dep_delay` int(11) NOT NULL,
   `origin` varchar(10) NOT NULL,
   `dest` varchar(10) NOT NULL,
-  `weather_delay` int(11) NOT NULL,
-  KEY `departure_date` (`departure_date`),
-  KEY `dest` (`dest`),
-  KEY `origin` (`origin`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `flights_only_delay`
---
-
-DROP TABLE IF EXISTS `flights_only_delay`;
-CREATE TABLE IF NOT EXISTS `flights_only_delay` (
-  `fk_date_state` int(11) DEFAULT NULL,
-  `arr_delay` int(11) DEFAULT NULL,
-  `dep_delay` int(11) DEFAULT NULL,
-  `origin` varchar(5) DEFAULT NULL,
-  `dest` varchar(5) DEFAULT NULL,
-  `weather_delay` int(11) DEFAULT NULL
+  `weather_delay` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -103,8 +66,7 @@ CREATE TABLE IF NOT EXISTS `flights_only_delay` (
 DROP TABLE IF EXISTS `states`;
 CREATE TABLE IF NOT EXISTS `states` (
   `name` varchar(100) NOT NULL,
-  `abbr` varchar(5) NOT NULL,
-  KEY `abbr` (`abbr`)
+  `abbr` varchar(5) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -119,10 +81,7 @@ CREATE TABLE IF NOT EXISTS `storms` (
   `type` varchar(50) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `state_abbr` varchar(50) NOT NULL,
-  KEY `start_date` (`start_date`),
-  KEY `end_date` (`end_date`),
-  KEY `state_abbr` (`state_abbr`)
+  `state_abbr` varchar(50) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 COMMIT;
 

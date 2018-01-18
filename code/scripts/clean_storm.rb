@@ -163,7 +163,7 @@ def clean_dates(table, columns)
             # Format and replace the date
             date = row[column].to_s.gsub(/(\d{1,2})[\.|\/|\-](\d{1,2})[\.|\/|\-](\d{2,4})(.*)/, '\2.\1.\3')
             date = Date.parse(date)
-            row[column] = date.strftime('%d.%m.%Y')
+            row[column] = date.strftime('%Y-%m-%d')
         end
     end
 
