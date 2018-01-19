@@ -15,7 +15,7 @@ URL                                                                     | Descri
 
 Scripts          | Files generated
 ---------------- | --------------------------------------------------------------------------------------------------------
-clean_flights.rb | - flights_2008_cleaned_3000000.csv, - flights_2008_cleaned_6000000.csv, - flights_2008_cleaned_final.csv
+clean_flights.rb | flights_2008_cleaned_3000000.csv, flights_2008_cleaned_6000000.csv, flights_2008_cleaned_final.csv
 clean_storm.rb   | - stormdata_2008_cleaned.csv
 
 ## Study design
