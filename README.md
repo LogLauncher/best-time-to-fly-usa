@@ -1,3 +1,4 @@
-# Are storms the major cause for delay ?
+# What type of weather/storms cause delays to flights?
 
-In this analyses we will find out if storms are a cause for major delays when flying.
+In this analyses we will find out what kind of storms can cause delays when flying.<br>
+We will also verify that the weather has an effect of flight delays.

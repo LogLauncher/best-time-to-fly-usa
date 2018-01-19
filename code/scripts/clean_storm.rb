@@ -105,6 +105,7 @@ def remove_columns(table, columns_to_remove)
 end
 
 # Function that adds the state abbreviation to the file
+# Remove the row if there is no state abbreviation. I am only analysing the states that are in the states csv file
 def add_state_addr(states, table)
     # Informe the user
     puts "Adding column..."
@@ -133,7 +134,7 @@ def add_state_addr(states, table)
     table
 end
 
-# Function that deletes the rows containing specific words in a column
+# Function that deletes the rows containing specific words in the "EVENT_TYPE" column
 def delete_rows(table, words)
     # Informe the user
     puts "Deleteing rows..."
@@ -152,7 +153,7 @@ def delete_rows(table, words)
 end
 
 # Function to format the dates
-def clean_dates(table, columns)
+def format_dates(table, columns)
     # Informe the user
     puts "Cleaning dates..."
 
@@ -175,7 +176,7 @@ end
 storms = remove_columns(storms, columns_to_remove)
 storms = delete_rows(storms, words_to_remove)
 storms = add_state_addr(states, storms)
-storms = clean_dates(storms, date_columns_to_clean)
+storms = format_dates(storms, date_columns_to_clean)
 
 # Informe the user
 puts "Creating the file..."

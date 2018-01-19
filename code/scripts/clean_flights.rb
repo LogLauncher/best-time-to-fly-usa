@@ -4,8 +4,8 @@ require "CSV"
 flight_file_path = "../../data/raw/flights_2008.csv"
 final_path = "../../data/processed/flights_2008_cleaned"
 
-# Function to combine the columns
-def combine_columns(input_path, output_path)
+# Function to that will clean a row (combin columns, remove columns and format columns)
+def clean_rows(input_path, output_path)
     # Inform the user
     puts "This could take some time. Combining columns. Please wait..."
 
@@ -66,12 +66,14 @@ def combine_columns(input_path, output_path)
         # Add the row to the final csv
         final << columns.join(",")
 
+        # Needed to seperate into multiple files for importing into phpMyAdmin
         if index % 3000000 == 0 && index != 0
             # Create the file
             puts "Writing to file, index #{index}..."
             File.open("#{output_path}_#{index}.csv", 'w') do |f|
                 f.write(final.join("\n"))
             end
+            # Clear array for the next file
             final = []
         end
 
@@ -85,7 +87,7 @@ def combine_columns(input_path, output_path)
 end
 
 # Call the function
-last_flights = combine_columns(flight_file_path, final_path)
+last_flights = clean_rows(flight_file_path, final_path)
 
 # Write the last flights to a file
 puts "Writing to file, last entries..."
