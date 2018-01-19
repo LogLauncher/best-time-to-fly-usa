@@ -28,7 +28,7 @@ The following section will walk you through different steps you will need to tak
 
 ### 1\. Getting the files
 
-Most file are in this GitHub repository but some where to big and are located in the school share folder (COMMUN).<br>
+Most files are in this GitHub repository but some were too big and are located in the school share folder (COMMUN).<br>
 
 1. Download or clone the Git repository.
 2. Go to the following location `N:\COMMUN\ELEVE\INFO\SI-T2a\BI1\Struan_Forsyth\raw_data` and copy the file into the `raw` folder.
@@ -56,17 +56,17 @@ In all the file that have them, remove the **Header**, then save and close the f
 
 ### 4\. Import into MySQL database (wamp/phpMyAdmin)
 
-In the scripts folder you'll find a **sql** file to create the database with the tables you'll need for importing the files.<br>
+In the scripts folder you'll find a **SQL** file to create the database with the tables you'll need for importing the files.<br>
 Create the database on your server and then proceed to import the different files into the correct tables.
 
 In phpMyAdmin when importing the **flight** csv files, I would get a timeout. Luckily, phpMyAdmin allows you to resume importing from where you left off.<br>
 When resuming an import remove from the URL the following part `&timeout_passed=1`. This helped me out with it crashing on the resumed import.
 
-Once every thing is imported you will need to run the following query in your database:
+Once everything is imported you will need to run the following query in your database:
 
 Description: Gets all the possible date and state abbreviation from the storms and flights tables. It then inserts the result into a date_state table with a unique `id`.
 
-```sql
+```SQL
 INSERT INTO date_state
 (SELECT (@cnt := @cnt + 1) AS id, b.*
 FROM
@@ -95,7 +95,7 @@ CROSS JOIN (SELECT @cnt := 0) AS d);
 
 Description: Gets all the flights with a delay and replaces the `date` with a date_state `id`. It then inserts the result into a flights_only_delay table.
 
-```sql
+```SQL
 INSERT INTO flights_only_delay
 SELECT * FROM
 ((SELECT ds.id AS `fk_date_state`, f.arr_delay, f.dep_delay, f.origin, f.dest, f.weather_delay
@@ -120,17 +120,17 @@ WHERE (f.arr_delay + f.dep_delay) > 0)) a
 When selecting the type of data to import into the software, select **MySQL** and link to your database.<br>
 When selecting the server and database name you'll need to selection **Advanced Options** (Option avancée) to be able to add a SQL query to load data.
 
-There are three table you'll need to import:
+There are three tables you'll need to import:
 
 - date_state
 - flights_only_delay
 - storms
 
-You'll need to import the `storms` by it's self and add the following SQL query:<br>
+You'll need to import the `storms` by its self and add the following SQL query:<br>
 
-Description: Adds the date_state `id` to the storms table. What is returned is `id` (id in date_state table) and `type` (type of storm)
+Description: Adds the date_state `id` to the storms table. What is returned is `id` (id in date_state table) and `type` (type of storm).
 
-```sql
+```SQL
 (SELECT ds.id AS `fk_date_state`, s.type
 FROM storms s
 INNER JOIN date_state ds ON
@@ -208,7 +208,7 @@ Name       | Description
 ---------- | ------------------------------------
 id         | Unique identifier for the date_state
 date       | Date (YYYY-mm-dd)
-state_abbr | State abbreviation
+state_abbr | State Abbreviation
 
 ### flights table
 
